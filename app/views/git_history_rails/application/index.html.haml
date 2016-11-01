@@ -1,0 +1,25 @@
+.git-history-rails-container
+  .history-table
+    %table.table.table-hover.table-striped.sortable-theme-minimal
+      %thead
+        %tr
+          %th
+            Time
+          %th
+            Hash
+          %th
+            Author
+          %th
+            Message
+      %tbody
+        - git = Git.open(Rails.root)
+        - git.log(nil).each do |commit|
+          %tr
+            %td
+              = commit.date.strftime("%d.%m.%Y %H:%M")
+            %td{title: commit.sha}
+              = commit.sha[0..6]
+            %td{title: commit.author.email}
+              = commit.author.name.encode('ASCII', :invalid => :replace, :undef => :replace, replace: "")
+            %td
+              = simple_format(commit.message.encode('ASCII', :invalid => :replace, :undef => :replace, replace: ""))
