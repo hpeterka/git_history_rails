@@ -33,5 +33,4 @@ Visit ```http://my_application.com/git_history``` to see all your commits.
 
   * added fallback to layout: false
   * fixed not working main app path helpers
-
  **0.1.0** - initial release
