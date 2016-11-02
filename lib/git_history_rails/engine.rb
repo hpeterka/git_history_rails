@@ -3,17 +3,44 @@ module GitHistoryRails
     isolate_namespace GitHistoryRails
     require "git"
 
-  initializer 'git_history_rails.configuration' do |app|
-    File.open("tmp/test_config","a").puts(app.config.to_s)
-    if app.config.try(:git_history_rails) && app.config.git_history_rails[:mounted_path]
-      app.routes.append do
-        mount GitHistoryRails::Engine => app.config.git_history_rails[:mounted_path]
+    module ApplicationHelper
+      def method_missing method, *args, &block
+        puts "LOOKING FOR ROUTES #{method}"
+        if method.to_s.end_with?('_path') or method.to_s.end_with?('_url')
+          if main_app.respond_to?(method)
+            main_app.send(method, *args)
+          else
+            super
+          end
+        else
+          super
+        end
       end
-     else
-       app.routes.append do
-          mount GitHistoryRails::Engine => "/git_history"
+
+      def respond_to?(method)
+        if method.to_s.end_with?('_path') or method.to_s.end_with?('_url')
+          if main_app.respond_to?(method)
+            true
+          else
+            super
+          end
+        else
+          super
         end
       end
     end
+
+    initializer 'git_history_rails.configuration' do |app|
+      if app.config.try(:git_history_rails) && app.config.git_history_rails[:mounted_path]
+        app.routes.append do
+          mount GitHistoryRails::Engine => app.config.git_history_rails[:mounted_path]
+        end
+       else
+         app.routes.append do
+            mount GitHistoryRails::Engine => "/git_history"
+          end
+        end
+    end
+
   end
 end
